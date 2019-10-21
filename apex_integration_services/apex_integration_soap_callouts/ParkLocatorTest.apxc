@@ -1,0 +1,16 @@
+@isTest
+private class ParkLocatorTest {
+    @isTest static void testCallout() {              
+        // This causes a fake response to be generated.
+        Test.setMock(WebServiceMock.class, new ParkServiceMock());
+
+        List<String> availableParks = ParkLocator.country('United States');
+        List<String> expectedParks = new List<String> {
+        	'Yellowstone',
+        	'Mackinac National Park',
+        	'Yosemite'
+        };
+
+        System.assertEquals(availableParks, expectedParks); 
+    }
+}
