@@ -1,6 +1,6 @@
 @isTest
 private class AccountProcessorTest {
-	@IsTest
+    @IsTest
     private static void testCountContacts() {
         Id recordId = createTestRecord();
 
