@@ -1,0 +1,35 @@
+@isTest
+private class AccountProcessorTest {
+	@IsTest
+    private static void testCountContacts() {
+        Id recordId = createTestRecord();
+
+        Test.startTest();
+        AccountProcessor.countContacts(new String[]{recordId});
+        Test.stopTest();
+
+        // Check the result.
+        Account acc = [SELECT Number_of_Contacts__c
+                       FROM Account
+                       WHERE Id = :recordId];
+
+        System.assertEquals(acc.Number_of_Contacts__c, 1);
+    }
+    
+    /**
+     * Helper method to create test record.
+     */
+    static Id createTestRecord() {
+        Account accountTest = new Account(Name='Test record');
+        insert accountTest;
+
+        Contact contactTest = new Contact(
+            AccountId = accountTest.Id,
+            firstName = 'test',
+            lastName =  'test'
+        );
+
+        insert contactTest;
+        return accountTest.Id;
+    }
+}

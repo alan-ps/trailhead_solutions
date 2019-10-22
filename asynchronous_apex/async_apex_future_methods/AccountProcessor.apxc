@@ -1,0 +1,18 @@
+public class AccountProcessor {
+    @future
+    public static void countContacts(List<String> AccountIds) {
+        Account[] accts  = new List<Account>();
+
+        for (String AccountId : AccountIds) {
+            AggregateResult contactNumber = [SELECT COUNT(id) countRecords
+                                             FROM Contact, Contact.Account
+                                             WHERE Account.id = :AccountId];
+            
+            Integer count = (Integer) contactNumber.get('countRecords');
+            Account a = new Account(id=AccountId, Number_of_Contacts__c=count);
+            accts.add(a);
+        }
+        
+        update accts;
+    }
+}
