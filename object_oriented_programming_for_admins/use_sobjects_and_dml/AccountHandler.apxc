@@ -1,0 +1,21 @@
+public class AccountHandler {
+
+    public static void insertAccount(Integer value) {
+        Integer counter = 1;
+        List<Account> addAccounts = new List<Account>();
+
+        while(counter <= value){
+            // Create a new account.
+            Account acc = new Account();
+            acc.Name = 'Acme Inc ' + counter;
+            acc.AccountNumber = 'A000' + counter;
+            addAccounts.add(acc);
+
+            counter = counter + 1;
+        }
+
+        // Insert all of the accounts in the list.
+        insert addAccounts;
+    }
+
+}
