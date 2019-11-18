@@ -1,0 +1,59 @@
+@isTest
+private class DailyLeadProcessorTest {
+    // Dummy daily CRON expression.
+    public static String CRON_EXP = '0 0 13 * * ?';
+    // Keep the lead ids to check task creation.
+    private static List<id> LEAD_IDS = new List<id>();
+
+    @testSetup
+    static void setup() {
+        List<Lead> newLeads = new List<Lead>();
+
+        // Create 200 leads.
+        for (Integer i = 0; i<200; i++) {
+            newLeads.add(
+              New Lead(
+                LastName = 'Last Name ' + i,
+                Company = 'Company ' + i
+              )
+            );
+        }
+
+        insert newLeads;
+
+        // Get the IDs of the leads we just inserted.
+        Map<Id, Lead> leadMap = new Map<Id, Lead>(newLeads);
+        LEAD_IDS = new List<Id>(leadMap.keySet());
+    }
+
+    static testmethod void testScheduledJob() {
+        Test.startTest();
+        // Schedule the test job
+        String jobId = System.schedule(
+            'ScheduledApexTest',
+            CRON_EXP,
+            new DailyLeadProcessor()
+        );
+
+        // Verify the scheduled job has not run yet.
+        List<Task> lt = [
+            SELECT Id
+            FROM Task
+            WHERE WhatId IN :LEAD_IDS
+        ];
+        System.assertEquals(0, lt.size(), 'Tasks exist before job has run');
+
+        // Stopping the test will run the job synchronously
+        Test.stopTest();
+
+        // Now that the scheduled job has executed,
+        // check that our tasks were created
+        lt = [
+            SELECT Id
+            FROM Task
+            WHERE WhatId IN :LEAD_IDS
+        ];
+        System.assertEquals(LEAD_IDS.size(), lt.size(), 'Tasks were not created');
+    }
+}
+
