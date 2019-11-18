@@ -1,0 +1,49 @@
+@isTest
+private class AddPrimaryContactTest {
+    @testSetup
+    static void setup() {
+        List<Account> accounts = new List<Account>();
+
+        // Add a contact.
+        Contact contact = new Contact(LastName='Test Contact');
+        insert contact;
+
+        // Insert 50 Account records for BillingState "NY" and
+        // 50 Account records for BillingState "CA".
+        for (Integer i = 0; i < 50; i++) {
+            accounts.add(new Account(
+                name='Test Account NY ' + i,
+                BillingState='NY'
+            ));
+            accounts.add(new Account(
+                name='Test Account CA ' + i,
+                BillingState='CA'
+            ));
+        }
+
+        insert accounts;
+    }
+
+    static testmethod void testQueueable() {
+        Contact contact = [
+            SELECT id, LastName
+            FROM Contact
+            WHERE LastName = 'Test Contact'
+        ][0];
+
+        // Create our Queueable instance.
+        AddPrimaryContact updater = new AddPrimaryContact(contact, 'CA');
+
+        // startTest/stopTest block to force async processes to run.
+        Test.startTest();
+        System.enqueueJob(updater);
+        Test.stopTest();
+
+        // Validate the job ran (50 new contacts should be created).
+        System.assertEquals(51, [
+            SELECT count()
+            FROM Contact
+            WHERE LastName = 'Test Contact'
+        ]);
+    }
+}
