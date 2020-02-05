@@ -1,0 +1,27 @@
+public class BusScheduleCache {
+    private Cache.OrgPartition part;
+
+    public BusScheduleCache() {
+        part = Cache.Org.getPartition('local.BusSchedule');
+    }
+
+    public void putSchedule(String busLine, Time[] schedule) {
+        part.put(busLine, schedule);
+    }
+
+    public List<Time> getSchedule(String busLine) {
+        List<Time> schedule = (List<Time>) part.get(busLine);
+
+        // Check the cache value that the get() call returned.
+        if (schedule != null) {
+            return schedule;
+        }
+
+        // We have a cache miss, so fetch the value from the source.
+        // Call an API to get the exchange rate.
+        return new List<Time>{
+            Time.newInstance(8, 0, 0, 0),
+            Time.newInstance(17, 0, 0, 0)
+        };
+    }
+}
